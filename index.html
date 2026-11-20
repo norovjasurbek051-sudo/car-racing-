@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAR RACING</title>
+<style>
+body {
+  margin: 0;
+  background: #16843a;
+  font-family: Arial;
+  text-align: center;
+  color: white;
+}
+h2 { color: yellow; }
+canvas {
+  background: #444;
+  width: 95vw;
+  max-width: 420px;
+  height: 65vh;
+  display: block;
+  margin: auto;
+  border: 4px solid white;
+  border-radius: 12px;
+  touch-action: none;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 15px;
+}
+button {
+  background: #ffcc00;
+  color: black;
+  border: 0;
+  border-radius: 18px;
+  padding: 20px 35px;
+  font-size: 25px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h2>🚗 CAR RACING</h2>
+<h3 id="score">Score: 0</h3>
+<canvas id="game" width="400" height="650"></canvas>
+
+<div class="controls">
+<button id="left">⬅️</button>
+<button id="right">➡️</button>
+</div>
+<button onclick="restart()">RESTART</button>
+
+<script>
+const c = document.getElementById("game");
+const ctx = c.getContext("2d");
+
+let player = {x:165,y:520,w:65,h:105};
+let enemy = {x:80,y:-120,w:65,h:105};
+let score = 0;
+let speed = 5;
+let over = false;
+let move = 0;
+let lines = 0;
+
+function car(x,y,color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x,y,65,105);
+  ctx.fillStyle = "black";
+  ctx.fillRect(x+9,y+12,47,30);
+  ctx.fillRect(x+9,y+62,47,30);
+}
+
+function draw() {
+  ctx.clearRect(0,0,400,650);
+
+  ctx.fillStyle = "#16843a";
+  ctx.fillRect(0,0,400,650);
+
+  ctx.fillStyle = "#444";
+  ctx.fillRect(35,0,330,650);
+
+  ctx.fillStyle = "white";
+  for(let y=-50;y<700;y+=130) {
+    ctx.fillRect(195,y+lines,10,65);
+  }
+
+  lines = (lines+speed)%130;
+
+  if(!over) {
+    player.x += move*7;
+    player.x = Math.max(40,Math.min(295,player.x));
+
+    enemy.y += speed;
+
+    if(enemy.y>650) {
+      enemy.y=-120;
+      enemy.x=40+Math.random()*250;
+      score++;
+      speed=Math.min(12,5+score*0.2);
+      document.getElementById("score").innerText="Score: "+score;
+    }
+
+    if(player.x<enemy.x+enemy.w &&
+       player.x+player.w>enemy.x &&
+       player.y<enemy.y+enemy.h &&
+       player.y+player.h>enemy.y) {
+      over=true;
+    }
+  }
+
+  car(player.x,player.y,"blue");
+  car(enemy.x,enemy.y,"red");
+
+  if(over) {
+    ctx.fillStyle="yellow";
+    ctx.font="bold 38px Arial";
+    ctx.textAlign="center";
+    ctx.fillText("GAME OVER",200,300);
+  }
+
+  requestAnimationFrame(draw);
+}
+
+function restart() {
+  player.x=165;
+  enemy.y=-120;
+  enemy.x=80;
+  score=0;
+  speed=5;
+  over=false;
+  document.getElementById("score").innerText="Score: 0";
+}
+
+document.getElementById("left").onpointerdown=()=>move=-1;
+document.getElementById("right").onpointerdown=()=>move=1;
+document.getElementById("left").onpointerup=()=>move=0;
+document.getElementById("right").onpointerup=()=>move=0;
+document.getElementById("left").onpointerleave=()=>move=0;
+document.getElementById("right").onpointerleave=()=>move=0;
+
+draw();
+</script>
+</body>
+</html>
